@@ -1,9 +1,5 @@
 abstract class Filter<T> {
-  final List<T> _products;
-
-  Filter(this._products);
-
-  List<T> apply();
+  bool apply(T product);
 }
 
 class Product {
@@ -19,32 +15,47 @@ class Product {
 class FilterByCategory extends Filter<Product> {
   final String categoryFilter;
 
-  FilterByCategory(List<Product> products, this.categoryFilter)
-      : super(products);
+  FilterByCategory(this.categoryFilter);
 
   @override
-  List<Product> apply() =>
-      _products.where((product) => product.category == categoryFilter).toList();
+  bool apply(Product product) => product.category == categoryFilter;
 }
 
 class FilterByPrice extends Filter<Product> {
   final int maxPrice;
 
-  FilterByPrice(List<Product> products, this.maxPrice) : super(products);
+  FilterByPrice(this.maxPrice);
 
   @override
-  List<Product> apply() =>
-      _products.where((product) => product.price <= maxPrice).toList();
+  bool apply(Product product) => product.price <= maxPrice;
 }
 
 class FilterByCount extends Filter<Product> {
   final int maxCount;
 
-  FilterByCount(List<Product> products, this.maxCount) : super(products);
+  FilterByCount(this.maxCount);
 
   @override
-  List<Product> apply() =>
-      _products.where((product) => product.count < maxCount).toList();
+  bool apply(Product product) => product.count < maxCount;
+}
+
+bool applyFilters(List<Product> products, Filter<Product> filter) {
+  List<Product> filteredProducts = products.where((product) {
+    return filter.apply(product);
+  }).toList();
+
+  if (filteredProducts.isEmpty) {
+    print("Нет продуктов, соответствующих критериям фильтра.");
+    return false;
+  }
+
+  print("Отфильтрованные продукты:");
+  print("ID\tНазвание\tКатегория\tЦена\tКоличество");
+  for (var product in filteredProducts) {
+    print(
+        "${product.id}\t${product.name}\t${product.category}\t${product.price} руб.\t${product.count} шт.");
+  }
+  return true;
 }
 
 void main() {
@@ -70,23 +81,11 @@ void main() {
         int.parse(articleData[4])));
   }
 
-  final categoryFilter = FilterByCategory(productList, "Бородинский");
-  final priceFilter = FilterByPrice(productList, 250);
-  final countFilter = FilterByCount(productList, 10);
+  final categoryFilter = FilterByCategory("Бородинский");
+  final priceFilter = FilterByPrice(250);
+  final countFilter = FilterByCount(10);
 
-  applyFilter(categoryFilter);
-  applyFilter(priceFilter);
-  applyFilter(countFilter);
-}
-
-void applyFilter(Filter<Product> filter) {
-  List<Product> filteredProducts = filter.apply();
-
-  print("Filtered products:");
-  print("ID\tName\tCategory\tPrice\tCount");
-  for (var product in filteredProducts) {
-    print(
-        "${product.id}\t${product.name}\t${product.category}\t${product.price} руб.\t${product.count} шт.");
-  }
-  print("\n");
+  applyFilters(productList, categoryFilter);
+  applyFilters(productList, priceFilter);
+  applyFilters(productList, countFilter);
 }
