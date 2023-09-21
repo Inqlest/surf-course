@@ -42,7 +42,18 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void rotation() {}
+  void drag(DragUpdateDetails details) {
+    _xPosition += details.delta.dx;
+    _yPosition += details.delta.dy;
+    setState(() {});
+  }
+
+  void rotation() {
+    setState(() {
+      _rotationAngle += 15;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,31 +65,21 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Stack(children: [
           Positioned.fill(
               child: GestureDetector(
-                  onTap: () {
-                    changeColor();
+                  onTap: changeColor,
+                  onLongPress: rotation,
+                  onPanUpdate: (details) {
+                    drag(details);
                   },
-                  child: GestureDetector(
-                      onPanUpdate: (details) {
-                        _xPosition += details.delta.dx;
-                        _yPosition += details.delta.dy;
-                        setState(() {});
-                      },
-                      child: Transform.translate(
-                          offset: Offset(_xPosition, _yPosition),
-                          child: GestureDetector(
-                              onLongPress: () {
-                                setState(() {
-                                  _rotationAngle += 15;
-                                });
-                              },
-                              child: Transform.rotate(
-                                angle: _rotationAngle * (3.14159265359 / 180),
-                                child: Icon(
-                                  size: 250,
-                                  Icons.apple,
-                                  color: _color,
-                                ),
-                              ))))))
+                  child: Transform.translate(
+                      offset: Offset(_xPosition, _yPosition),
+                      child: Transform.rotate(
+                        angle: _rotationAngle * (3.14159265359 / 180),
+                        child: Icon(
+                          size: 250,
+                          Icons.apple,
+                          color: _color,
+                        ),
+                      ))))
         ])));
   }
 }
