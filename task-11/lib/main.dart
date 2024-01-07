@@ -3,15 +3,10 @@ import 'package:intl/intl.dart';
 import 'navigation_bar.dart';
 import 'data.dart';
 import 'bottom_bar.dart';
-import 'Product.dart';
+import 'product.dart';
 import 'modal_bottom.dart';
-/// Это не готовый вариант у меня есть пару вопросов
-/// 1. Почему в modal_bottom что бы я не делал не получается вернуть исходный список?
-/// 2. Как добавить разделительные полосы как в макете?
-/// 3. Как выводить список по категориям?
-/// 4. Как сохранять выбранный метод сортировки при закрытии модального окна?
-/// 5. Sale в процентах?
-/// Помогите с этим, а то я уже почти месяц пишу и глаз подергивается:)
+import 'filter.dart';
+import 'filtered_by_category.dart';
 
 /// Цена товара в копейках. Без скидки.
 ///
@@ -53,19 +48,20 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int checkNumber = 1;
-  late List<ProductEntity> currentData = dataForStudents;
+  String formattedDate = DateFormat('dd.M.yy в kk:mm').format(DateTime.now());
+  String startOption = 'Без Сортировки';
+  late List<ProductEntity> currentData = List.of(dataForStudents);
   Future<void> sortButton() async {
-    List<ProductEntity>? sortedData = await modal(context, currentData); // Use await here
-
+    String option = startOption;
+    option = await modal(context, startOption);
     setState(() {
-      currentData = sortedData;
+      startOption = option;
+      currentData = dataFilter(option, dataForStudents);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('dd.M.yy в kk:mm').format(now);
     return Scaffold(
         bottomNavigationBar: const CustomNavBar(),
         appBar: AppBar(
@@ -85,7 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
             //Дата
             Text(
               formattedDate,
-              style: const TextStyle(color: Color.fromRGBO(96, 96, 123, 1), fontSize: 10),
+              style: const TextStyle(
+                  color: Color.fromRGBO(96, 96, 123, 1), fontSize: 10),
             ),
           ]),
 
@@ -102,30 +99,35 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Column(children: [
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                // Текст
-                const Text('Список покупок',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w700,
-                    )),
-                //Кнопка с GestureDetector
-                GestureDetector(
-                    onTap: sortButton,
-                    child: Container(
-                        height: 32,
-                        width: 32,
-                        decoration: BoxDecoration(color: const Color.fromRGBO(241, 241, 241, 1), borderRadius: BorderRadius.circular(6)),
-                        child: const Icon(
-                          Icons.sort,
-                        ))),
-              ])),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Текст
+                    const Text('Список покупок',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                        )),
+                    //Кнопка с GestureDetector
+                    GestureDetector(
+                        onTap: sortButton,
+                        child: Container(
+                            height: 32,
+                            width: 32,
+                            decoration: BoxDecoration(
+                                color: const Color.fromRGBO(241, 241, 241, 1),
+                                borderRadius: BorderRadius.circular(6)),
+                            child: const Icon(
+                              Icons.sort,
+                            ))),
+                  ])),
 
           // Вводим ListView
-          Product(
-            data: currentData,
-          ),
+          startOption != "По типу"
+              ? Product(data: currentData)
+              : CategoryFilter(data: currentData),
+
           // Выводим нижнюю панель
           BottomBar(
             data: currentData,

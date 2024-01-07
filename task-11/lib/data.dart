@@ -5,7 +5,7 @@ class ProductEntity {
   final int price;
 
   /// Категория товара.
-  final Category category;
+  late final Category category;
 
   /// Ссылка на изображение товара.
   final String imageUrl;
@@ -68,7 +68,6 @@ final dataForStudents = <ProductEntity>[
     category: Category.food,
     imageUrl: 'https://images.unsplash.com/photo-1589984662646-e7b2e4962f18?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80',
     amount: Grams(1000),
-    sale: 50,
   ),
   ProductEntity(
     title: 'Дыня',
@@ -90,6 +89,7 @@ final dataForStudents = <ProductEntity>[
     category: Category.tech,
     amount: Quantity(1),
     imageUrl: 'https://images.unsplash.com/photo-1578643463396-0997cb5328c1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bWl4ZXJ8ZW58MHx8MHx8&auto=format&fit=crop&w=900&q=60',
+    sale: 50,
   ),
   ProductEntity(
     title: 'Крем для загара',
